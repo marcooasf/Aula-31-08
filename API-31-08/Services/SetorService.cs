@@ -14,10 +14,10 @@ public interface ISetorService
 
 public class SetorService : ISetorService
 {
-    private readonly AppDbContext _context;
-    public SetorService(AppDbContext context)
+    private readonly AppDbContext _repository;
+    public SetorService(AppDbContext repository)
     {
-        _context = context;
+        _repository = repository;
     }
     public Task<List<Setor>> ListarAsync()
     {
@@ -26,21 +26,26 @@ public class SetorService : ISetorService
 
     public Task<Setor?> ObterPorIdAsync(int id)
     {
-        throw new NotImplementedException();
+        
     }
 
-    public Task<Setor> CriarAsync(Setor setor)
+    public async Task<Setor> CriarAsync(Setor setor)
     {
-        throw new NotImplementedException();
+        await _repository.AddAsync(setor);
     }
 
-    public Task<bool> AtualizarAsync(int id, Setor setor)
+    public async Task<bool> AtualizarAsync(int id, Setor setor)
     {
-        throw new NotImplementedException();
+        var existente = await _repository.ObterPorIdAsync(setor.Id);
+        if (existente == null) return false;
     }
 
-    public Task<(bool Removido, string? Erro)> ExcluirAsync(int id)
+    public async Task<(bool Removido, string? Erro)> ExcluirAsync(int id)
     {
-        throw new NotImplementedException();
+        var setor = await _repository.ObterPorIdAsync(id);
+        if (setor is null) return (false, null);
+
+        if (setor.Funcionario.Any())
+            return (false, "Não é possivel remover um setor que possui funcionario.");
     }
 }
