@@ -4,47 +4,66 @@ using API_31_08.Repositories;
 namespace API_31_08.Services;
 public interface IEnderecoService
 {
-    Task<List<Endereco?>> ListarPorFuncionarioAsync(int funcionarioId);
-    Task<Endereco?> ObterPorIdAsync(int id);
+    Task<List<Endereco>?> ListarPorFuncionarioAsync(int funcionarioId);
+    Task<Endereco?> ObterAsync(int id);
     Task<Endereco?> CriarAsync(int funcionarioId, Endereco endereco);
-    Task<Endereco?> AtualizarAsync(int id, Endereco endereco);
+    Task<bool> AtualizarAsync(int id, Endereco endereco);
     Task<bool> RemoverAsync(int id);
 }
-
+ 
 public class EnderecoService : IEnderecoService
 {
-    public readonly IEnderecoRepository _repository;
-    public readonly IFuncionarioRepository _funcionarioRepository;
-    
-    public EnderecoService(IEnderecoRepository repository,  IFuncionarioRepository funcionarioRepository)
+    private readonly IEnderecoRepository _repository;
+    private readonly IFuncionarioRepository _funcionarioRepository;
+ 
+    public EnderecoService(IEnderecoRepository repository, IFuncionarioRepository funcionarioRepository)
     {
         _repository = repository;
         _funcionarioRepository = funcionarioRepository;
     }
-    
-    public async Task<List<Endereco?>> ListarPorFuncionarioAsync(int funcionarioId)
+ 
+    public async Task<List<Endereco>?> ListarPorFuncionarioAsync(int funcionarioId)
     {
-        if(!await _funcionarioRepository.ExisteAsync(funcionarioId)) return null;
+        if (!await _funcionarioRepository.ExisteAsync(funcionarioId)) return null;
         return await _repository.ListarPorFuncionarioAsync(funcionarioId);
     }
-
-    public Task<Endereco?> ObterPorIdAsync(int id)
+ 
+    public Task<Endereco?> ObterAsync(int id) => _repository.ObterPorIdAsync(id);
+ 
+    public async Task<Endereco?> CriarAsync(int funcionarioId, Endereco endereco)
     {
-        throw new NotImplementedException();
+        if (!await _funcionarioRepository.ExisteAsync(funcionarioId)) return null;
+ 
+     
+        endereco.Funcionario = null;
+        endereco.FuncionarioId = funcionarioId; 
+ 
+        await _repository.AdicionarAsync(endereco);
+        return endereco;
     }
-
-    public Task<Endereco?> CriarAsync(int funcionarioId, Endereco endereco)
+ 
+    public async Task<bool> AtualizarAsync(int id, Endereco endereco)
     {
-        throw new NotImplementedException();
+        var existente = await _repository.ObterPorIdAsync(id);
+        if (existente is null) return false;
+ 
+        existente.Pais = endereco.Pais;
+        existente.Numero = endereco.Numero;
+        existente.Bairro = endereco.Bairro;
+        existente.Cidade = endereco.Cidade;
+        existente.Rua = endereco.Rua;
+        existente.Cep = endereco.Cep;
+ 
+        await _repository.AtualizarAsync(existente);
+        return true;
     }
-
-    public Task<Endereco?> AtualizarAsync(int id, Endereco endereco)
+ 
+    public async Task<bool> RemoverAsync(int id)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> RemoverAsync(int id)
-    {
-        throw new NotImplementedException();
+        var endereco = await _repository.ObterPorIdAsync(id);
+        if (endereco is null) return false;
+ 
+        await _repository.RemoverAsync(endereco);
+        return true;
     }
 }
