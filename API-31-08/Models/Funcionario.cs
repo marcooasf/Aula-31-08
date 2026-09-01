@@ -7,7 +7,6 @@ public class Funcionario
     public double Salario { get; set; }
     
     public int SetorId { get; set; }
-    public Setor? Setor { get; set; } = new Setor();
-    
+    public Setor? Setor { get; set; }
     public ICollection<Endereco> Enderecos { get; set; } = new List<Endereco>();
 }

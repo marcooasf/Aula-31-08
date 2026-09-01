@@ -7,7 +7,7 @@ using Microsoft.JSInterop;
 namespace API_31_08.Controllers;
 
 [ApiController]
-[Route("api/funcionario/{FuncionarioId:int}/[controller]")]
+[Route("api/funcionario/{funcionarioId:int}/[controller]")]
 public class EnderecoController :  ControllerBase
 {
    private readonly IEnderecoService _service;
